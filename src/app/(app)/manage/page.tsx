@@ -182,7 +182,7 @@ export default function ManagePage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Event name (e.g., Dog diarrhea)"
+              placeholder="Event name (e.g., Working out)"
               className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm mb-4 outline-none focus:border-teal"
             />
 
