@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Crosshair, ListPlus, Globe, BarChart3, Settings } from "lucide-react";
+import { Crosshair, ListPlus, Rocket, BarChart3, Settings } from "lucide-react";
 
 const navItems = [
   { href: "/track", icon: Crosshair, label: "Track" },
   { href: "/manage", icon: ListPlus, label: "Events" },
-  { href: "/apps", icon: Globe, label: "Apps" },
+  { href: "/apps", icon: Rocket, label: "Apps" },
   { href: "/dashboard", icon: BarChart3, label: "Dashboard" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];

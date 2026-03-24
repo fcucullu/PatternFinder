@@ -27,12 +27,6 @@ body {
   background-clip: text;
 }
 
-@keyframes confetti-pop {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.3); opacity: 0.8; }
-  100% { transform: scale(0); opacity: 0; }
-}
-
 @keyframes card-pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.05); }

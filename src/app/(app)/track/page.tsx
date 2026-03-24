@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Crosshair, Plus } from "lucide-react";
+import { Rocket, Plus } from "lucide-react";
 import Link from "next/link";
 import { ConfettiBurst } from "@/components/confetti";
 
@@ -100,7 +100,7 @@ export default function TrackPage() {
           <p className="text-xs text-muted">Tap once to select, tap again to log</p>
         </div>
         <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center">
-          <Crosshair className="w-5 h-5 text-teal" />
+          <Rocket className="w-5 h-5 text-teal" />
         </div>
       </div>
 
