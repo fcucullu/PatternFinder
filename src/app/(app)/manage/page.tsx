@@ -132,8 +132,8 @@ export default function ManagePage() {
 
       {/* Event Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center">
-          <div className="bg-surface w-full max-w-lg rounded-t-2xl p-6 border-t border-border">
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-end justify-center">
+          <div className="bg-surface w-full max-w-lg rounded-t-2xl p-6 pb-[calc(1.5rem+4rem+env(safe-area-inset-bottom))] border-t border-border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-bold text-foreground">
                 {editingEvent ? "Edit Event" : "New Event"}
@@ -193,7 +193,7 @@ export default function ManagePage() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-6">
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center px-6">
           <div className="bg-surface rounded-2xl p-6 border border-border max-w-sm w-full">
             <h3 className="font-bold text-foreground mb-2">Delete Event?</h3>
             <p className="text-sm text-muted mb-6">
@@ -219,7 +219,7 @@ export default function ManagePage() {
 
       {/* Share Modal */}
       {sharingEventId && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-6">
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center px-6">
           <div className="bg-surface rounded-2xl p-6 border border-border max-w-sm w-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-foreground">Share Event</h3>
