@@ -56,16 +56,8 @@ create policy "Users can update own events" on public.events
   for update using (auth.uid() = user_id);
 create policy "Users can delete own events" on public.events
   for delete using (auth.uid() = user_id);
--- Allow viewing events shared with you
-create policy "Users can view shared events" on public.events
-  for select using (
-    id in (
-      select event_id from public.shared_events
-      where shared_with_user_id = auth.uid()
-    )
-  );
 
--- Shared events table
+-- Shared events table (must be created before the shared events policy on events)
 create table public.shared_events (
   id uuid primary key default gen_random_uuid(),
   event_id uuid not null references public.events(id) on delete cascade,
@@ -75,6 +67,15 @@ create table public.shared_events (
 );
 
 alter table public.shared_events enable row level security;
+
+-- Now we can reference shared_events
+create policy "Users can view shared events" on public.events
+  for select using (
+    id in (
+      select event_id from public.shared_events
+      where shared_with_user_id = auth.uid()
+    )
+  );
 
 create policy "Event owners can share" on public.shared_events
   for insert with check (
