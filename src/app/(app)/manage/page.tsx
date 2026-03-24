@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Plus, Pencil, Trash2, X, Share2 } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Share2, UserMinus } from "lucide-react";
 
 interface TrackerEvent {
   id: string;
@@ -10,6 +10,12 @@ interface TrackerEvent {
   emoji: string;
   color: string;
   user_id: string;
+}
+
+interface SharedUser {
+  id: string;
+  email: string;
+  display_name: string | null;
 }
 
 const EMOJIS = ["🐕", "💧", "🍽️", "💊", "🏃", "😴", "📖", "🧘", "☕", "🍺", "🚬", "💩", "🤒", "😊", "😰", "🎯"];
@@ -27,6 +33,8 @@ export default function ManagePage() {
   const [shareEmail, setShareEmail] = useState("");
   const [sharingEventId, setSharingEventId] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState("");
+  const [sharedUsers, setSharedUsers] = useState<SharedUser[]>([]);
+  const [loadingShares, setLoadingShares] = useState(false);
 
   useEffect(() => {
     loadEvents();
@@ -74,23 +82,38 @@ export default function ManagePage() {
     loadEvents();
   };
 
+  const openShareModal = async (eventId: string) => {
+    setSharingEventId(eventId);
+    setShareEmail("");
+    setShareMessage("");
+    setLoadingShares(true);
+
+    const { data } = await supabase
+      .from("shared_events")
+      .select("shared_with_user_id, profiles!shared_events_shared_with_user_id_fkey(id, email, display_name)")
+      .eq("event_id", eventId);
+
+    const users = (data ?? [])
+      .map((s) => s.profiles as unknown as SharedUser)
+      .filter(Boolean);
+    setSharedUsers(users);
+    setLoadingShares(false);
+  };
+
   const handleShare = async (eventId: string) => {
     if (!shareEmail.trim()) return;
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", shareEmail.trim().toLowerCase())
-      .single();
+    const { data: profileId, error: lookupError } = await supabase
+      .rpc("lookup_profile_by_email", { p_email: shareEmail.trim() });
 
-    if (!profile) {
+    if (lookupError || !profileId) {
       setShareMessage("User not found. They need to sign up first.");
       return;
     }
 
     const { error } = await supabase.from("shared_events").insert({
       event_id: eventId,
-      shared_with_user_id: profile.id,
+      shared_with_user_id: profileId,
     });
 
     if (error?.code === "23505") {
@@ -98,10 +121,20 @@ export default function ManagePage() {
     } else if (error) {
       setShareMessage("Error sharing event.");
     } else {
-      setShareMessage("Shared successfully!");
+      setShareMessage("Shared!");
       setShareEmail("");
+      openShareModal(eventId);
     }
-    setTimeout(() => { setShareMessage(""); setSharingEventId(null); }, 2000);
+    setTimeout(() => setShareMessage(""), 2000);
+  };
+
+  const handleUnshare = async (eventId: string, userId: string) => {
+    await supabase
+      .from("shared_events")
+      .delete()
+      .eq("event_id", eventId)
+      .eq("shared_with_user_id", userId);
+    openShareModal(eventId);
   };
 
   const resetForm = () => {
@@ -229,28 +262,57 @@ export default function ManagePage() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <p className="text-sm text-muted mb-3">
-              Enter the email of the person you want to share this event with. They must have a PatternFinder account.
-            </p>
-            <input
-              type="email"
-              value={shareEmail}
-              onChange={(e) => setShareEmail(e.target.value)}
-              placeholder="email@example.com"
-              className="w-full bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm mb-3 outline-none focus:border-teal"
-            />
+
+            {/* Current shares */}
+            {loadingShares ? (
+              <p className="text-xs text-muted mb-4">Loading...</p>
+            ) : sharedUsers.length > 0 ? (
+              <div className="mb-4">
+                <p className="text-xs text-muted mb-2">Shared with</p>
+                <div className="space-y-2">
+                  {sharedUsers.map((u) => (
+                    <div key={u.id} className="flex items-center justify-between bg-background rounded-lg px-3 py-2">
+                      <span className="text-sm text-foreground truncate">
+                        {u.display_name || u.email}
+                      </span>
+                      <button
+                        onClick={() => handleUnshare(sharingEventId, u.id)}
+                        className="text-muted hover:text-red-400 transition-colors ml-2 shrink-0"
+                      >
+                        <UserMinus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted mb-4">Not shared with anyone yet.</p>
+            )}
+
+            {/* Add new share */}
+            <p className="text-xs text-muted mb-2">Add person by email</p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={shareEmail}
+                onChange={(e) => setShareEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleShare(sharingEventId)}
+                placeholder="email@example.com"
+                className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm outline-none focus:border-teal"
+              />
+              <button
+                onClick={() => handleShare(sharingEventId)}
+                disabled={!shareEmail.trim()}
+                className="bg-teal text-black font-medium px-4 py-3 rounded-xl disabled:opacity-40 text-sm"
+              >
+                Share
+              </button>
+            </div>
             {shareMessage && (
-              <p className={`text-xs mb-3 ${shareMessage.includes("successfully") ? "text-green-400" : "text-red-400"}`}>
+              <p className={`text-xs mt-2 ${shareMessage.includes("Shared") ? "text-green-400" : "text-red-400"}`}>
                 {shareMessage}
               </p>
             )}
-            <button
-              onClick={() => handleShare(sharingEventId)}
-              disabled={!shareEmail.trim()}
-              className="w-full bg-teal text-black font-medium py-3 rounded-xl disabled:opacity-40"
-            >
-              Share
-            </button>
           </div>
         </div>
       )}
@@ -268,7 +330,7 @@ export default function ManagePage() {
             </div>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => setSharingEventId(event.id)}
+                onClick={() => openShareModal(event.id)}
                 className="p-2 text-muted hover:text-teal transition-colors"
               >
                 <Share2 className="w-4 h-4" />
