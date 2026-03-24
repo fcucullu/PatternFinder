@@ -49,17 +49,19 @@ export default function ManagePage() {
     if (!user) return;
 
     if (editingEvent) {
-      await supabase
+      const { error } = await supabase
         .from("events")
         .update({ name: name.trim(), emoji, color })
         .eq("id", editingEvent.id);
+      if (error) return alert("Failed to save event.");
     } else {
-      await supabase.from("events").insert({
+      const { error } = await supabase.from("events").insert({
         user_id: user.id,
         name: name.trim(),
         emoji,
         color,
       });
+      if (error) return alert("Failed to create event.");
     }
 
     resetForm();

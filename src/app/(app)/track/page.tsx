@@ -79,10 +79,12 @@ export default function TrackPage() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    await supabase.from("occurrences").insert({
+    const { error } = await supabase.from("occurrences").insert({
       event_id: eventId,
       logged_by: user.id,
     });
+
+    if (error) return;
 
     confettiKey.current++;
     setConfetti({ key: confettiKey.current, x, y });
