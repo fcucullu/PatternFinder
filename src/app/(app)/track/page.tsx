@@ -54,28 +54,25 @@ export default function TrackPage() {
     setEvents([...(own ?? []), ...sharedEvents]);
   };
 
-  const handleTap = useCallback(
-    (eventId: string, e: React.MouseEvent | React.TouchEvent) => {
-      if (expandedId === eventId) {
-        // Second tap — log it!
-        logOccurrence(eventId, e);
-        setExpandedId(null);
-        if (expandTimeout.current) clearTimeout(expandTimeout.current);
-      } else {
-        // First tap — expand
-        setExpandedId(eventId);
-        if (expandTimeout.current) clearTimeout(expandTimeout.current);
-        expandTimeout.current = setTimeout(() => setExpandedId(null), 3000);
-      }
-    },
-    [expandedId]
-  );
+  const handleTap = (eventId: string, e: React.MouseEvent | React.TouchEvent) => {
+    if (expandedId === eventId) {
+      // Second tap — log it! Capture rect before async
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      logOccurrence(eventId, rect);
+      setExpandedId(null);
+      if (expandTimeout.current) clearTimeout(expandTimeout.current);
+    } else {
+      // First tap — expand
+      setExpandedId(eventId);
+      if (expandTimeout.current) clearTimeout(expandTimeout.current);
+      expandTimeout.current = setTimeout(() => setExpandedId(null), 3000);
+    }
+  };
 
-  const logOccurrence = async (eventId: string, e: React.MouseEvent | React.TouchEvent) => {
+  const logOccurrence = async (eventId: string, rect: DOMRect) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
@@ -84,7 +81,10 @@ export default function TrackPage() {
       logged_by: user.id,
     });
 
-    if (error) return;
+    if (error) {
+      console.error("Failed to log occurrence:", error);
+      return;
+    }
 
     confettiKey.current++;
     setConfetti({ key: confettiKey.current, x, y });
