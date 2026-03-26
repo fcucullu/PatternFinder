@@ -21,7 +21,7 @@ export default function SettingsPage() {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
         const { data } = await supabase
-          .from("profiles")
+          .from("global_profiles")
           .select("*")
           .eq("id", user.id)
           .single();

@@ -46,13 +46,13 @@ export default function DashboardPage() {
 
     // Own events
     const { data: own } = await supabase
-      .from("events")
+      .from("patternfinder_events")
       .select("id, name, emoji, color")
       .eq("user_id", user.id);
 
     // Shared events
     const { data: shared } = await supabase
-      .from("shared_events")
+      .from("patternfinder_shared_events")
       .select("event_id, events(id, name, emoji, color)")
       .eq("shared_with_user_id", user.id);
 
@@ -62,7 +62,7 @@ export default function DashboardPage() {
 
     if (allEvents.length > 0) {
       const { data: occ } = await supabase
-        .from("occurrences")
+        .from("patternfinder_occurrences")
         .select("*")
         .in("event_id", allEvents.map((e) => e.id))
         .order("created_at", { ascending: false });
@@ -151,7 +151,7 @@ export default function DashboardPage() {
   };
 
   const handleDeleteOccurrence = async (id: string) => {
-    await supabase.from("occurrences").delete().eq("id", id);
+    await supabase.from("patternfinder_occurrences").delete().eq("id", id);
     setOccurrences((prev) => prev.filter((o) => o.id !== id));
     setDeleteConfirm(null);
   };

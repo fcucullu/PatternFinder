@@ -9,7 +9,7 @@ export async function GET() {
 
   // Count unique users who have created events in PatternFinder
   const { data } = await supabase
-    .from("events")
+    .from("patternfinder_events")
     .select("user_id")
     .limit(1000);
 

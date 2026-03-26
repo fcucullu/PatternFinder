@@ -39,15 +39,15 @@ export default function TrackPage() {
 
     // Own events
     const { data: own } = await supabase
-      .from("events")
+      .from("patternfinder_events")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at");
 
     // Shared events
     const { data: shared } = await supabase
-      .from("shared_events")
-      .select("event_id, events(*)")
+      .from("patternfinder_shared_events")
+      .select("event_id, patternfinder_events(*)")
       .eq("shared_with_user_id", user.id);
 
     const sharedEvents = (shared?.map((s) => s.events).filter(Boolean) ?? []) as unknown as TrackerEvent[];
@@ -76,7 +76,7 @@ export default function TrackPage() {
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
 
-    const { error } = await supabase.from("occurrences").insert({
+    const { error } = await supabase.from("patternfinder_occurrences").insert({
       event_id: eventId,
       logged_by: user.id,
     });

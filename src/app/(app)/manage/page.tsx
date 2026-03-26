@@ -44,7 +44,7 @@ export default function ManagePage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const { data } = await supabase
-      .from("events")
+      .from("patternfinder_events")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at");
@@ -58,12 +58,12 @@ export default function ManagePage() {
 
     if (editingEvent) {
       const { error } = await supabase
-        .from("events")
+        .from("patternfinder_events")
         .update({ name: name.trim(), emoji, color })
         .eq("id", editingEvent.id);
       if (error) return alert("Failed to save event.");
     } else {
-      const { error } = await supabase.from("events").insert({
+      const { error } = await supabase.from("patternfinder_events").insert({
         user_id: user.id,
         name: name.trim(),
         emoji,
@@ -77,7 +77,7 @@ export default function ManagePage() {
   };
 
   const handleDelete = async (id: string) => {
-    await supabase.from("events").delete().eq("id", id);
+    await supabase.from("patternfinder_events").delete().eq("id", id);
     setDeleteConfirm(null);
     loadEvents();
   };
@@ -89,12 +89,12 @@ export default function ManagePage() {
     setLoadingShares(true);
 
     const { data } = await supabase
-      .from("shared_events")
-      .select("shared_with_user_id, profiles!shared_events_shared_with_user_id_fkey(id, email, display_name)")
+      .from("patternfinder_shared_events")
+      .select("shared_with_user_id, global_profiles!patternfinder_shared_events_shared_with_user_id_fkey(id, email, display_name)")
       .eq("event_id", eventId);
 
     const users = (data ?? [])
-      .map((s) => s.profiles as unknown as SharedUser)
+      .map((s) => (s as any).global_profiles as unknown as SharedUser)
       .filter(Boolean);
     setSharedUsers(users);
     setLoadingShares(false);
@@ -111,7 +111,7 @@ export default function ManagePage() {
       return;
     }
 
-    const { error } = await supabase.from("shared_events").insert({
+    const { error } = await supabase.from("patternfinder_shared_events").insert({
       event_id: eventId,
       shared_with_user_id: profileId,
     });
@@ -130,7 +130,7 @@ export default function ManagePage() {
 
   const handleUnshare = async (eventId: string, userId: string) => {
     await supabase
-      .from("shared_events")
+      .from("patternfinder_shared_events")
       .delete()
       .eq("event_id", eventId)
       .eq("shared_with_user_id", userId);
