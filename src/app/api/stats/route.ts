@@ -7,12 +7,16 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { count } = await supabase
-    .from("profiles")
-    .select("*", { count: "exact", head: true });
+  // Count unique users who have created events in PatternFinder
+  const { data } = await supabase
+    .from("events")
+    .select("user_id")
+    .limit(1000);
+
+  const uniqueUsers = new Set((data ?? []).map((d) => d.user_id));
 
   return NextResponse.json(
-    { users: count ?? 0 },
+    { users: uniqueUsers.size },
     {
       headers: {
         "Access-Control-Allow-Origin": "*",
