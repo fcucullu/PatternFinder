@@ -50,7 +50,7 @@ export default function TrackPage() {
       .select("event_id, patternfinder_events(*)")
       .eq("shared_with_user_id", user.id);
 
-    const sharedEvents = (shared?.map((s) => s.events).filter(Boolean) ?? []) as unknown as TrackerEvent[];
+    const sharedEvents = (shared?.map((s) => (s as any).patternfinder_events).filter(Boolean) ?? []) as unknown as TrackerEvent[];
     setEvents([...(own ?? []), ...sharedEvents]);
   };
 

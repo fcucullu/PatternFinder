@@ -56,7 +56,7 @@ export default function DashboardPage() {
       .select("event_id, events(id, name, emoji, color)")
       .eq("shared_with_user_id", user.id);
 
-    const sharedEvents = (shared?.map((s) => s.events).filter(Boolean) ?? []) as unknown as TrackerEvent[];
+    const sharedEvents = (shared?.map((s) => (s as any).patternfinder_events).filter(Boolean) ?? []) as unknown as TrackerEvent[];
     const allEvents = [...(own ?? []), ...sharedEvents];
     setEvents(allEvents);
 
