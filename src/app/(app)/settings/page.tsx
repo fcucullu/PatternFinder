@@ -56,6 +56,16 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* WhatsApp feedback */}
+      <a
+        href="https://wa.me/34644941706?text=Hey%20Fran!%20%F0%9F%91%8B%20I'm%20using%20PatternFinder%20and%20wanted%20to%20tell%20you..."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="w-full flex items-center justify-center gap-2 bg-surface border border-border rounded-xl p-4 text-sm font-medium text-foreground hover:border-teal/30 transition-colors mb-4"
+      >
+        Feedback? Chat with Fran 💬
+      </a>
+
       {/* Sign Out */}
       <button
         onClick={handleSignOut}
