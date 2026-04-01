@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { BarChart3, X, Trash2 } from "lucide-react";
+import { InstallPrompt } from "@/components/install-prompt";
 import {
   BarChart,
   Bar,
@@ -160,7 +161,8 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <InstallPrompt />
+      <div className="flex items-center justify-between mb-6 mt-4">
         <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
         <div className="w-10 h-10 rounded-xl bg-teal/10 flex items-center justify-center">
           <BarChart3 className="w-5 h-5 text-teal" />
